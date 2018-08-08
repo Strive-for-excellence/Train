@@ -1,0 +1,99 @@
+
+// 求最小覆盖点
+#include <bits/stdc++.h>
+#define mem(ar,num) memset(ar,num,sizeof(ar))
+#define me(ar) memset(ar,0,sizeof(ar))
+#define lowbit(x) (x&(-x))
+#define Pb push_back
+#define  FI first
+#define  SE second
+#define For(i,a,b) for(int i = a; i < b; ++i)
+#define IOS ios::sync_with_stdio(false)
+using namespace std;
+typedef long long LL;
+typedef unsigned long long ULL;
+const int    prime = 999983;
+const int    INF = 0x7FFFFFFF;
+const LL     INFF =0x7FFFFFFFFFFFFFFF;
+const double pi = acos(-1.0);
+const double inf = 1e18;
+const double eps = 1e-6;
+const LL     mod = 1e9 + 7;
+LL qpow(LL a,LL b){LL s=1;while(b>0){if(b&1)s=s*a%mod;a=a*a%mod;b>>=1;}return s;}
+LL gcd(LL a,LL b) {return b?gcd(b,a%b):a;}
+int dr[2][4] = {1,-1,0,0,0,0,-1,1};
+typedef pair<int,int> P;
+
+const int maxn = 2000+100;
+vector<int> G[maxn];// vector 存边
+int match[maxn];// 匹配的点
+bool used[maxn];// 每次寻找增广路的时候都需要标记是否找过这个节点
+int N,M;
+bool dfs(int v){// dfs 寻找增广路
+    used[v] = true;
+    for(int i = 0;i < G[v].size(); ++i){
+        int u = G[v][i],w = match[u];
+        if(w < 0||!used[w]&&dfs(w)){
+        /* 如果该点未标记，表示找到增广路，或者沿着匹配找，找到增广路
+        ，修改匹配的节点*/
+            match[v] = u;
+            match[u] = v;
+            return true;
+        }
+    }
+    return false;
+}
+void Dfs(int v){
+	used[v] = 1;
+	for(int i = 0;i < G[v].size(); ++i){
+		int u  = G[v][i],w = match[u];
+		used[u] = 1;
+		if(w > 0&&!used[w]){
+			Dfs(w);
+		}
+	}
+} 
+int main(void)
+{
+	int T;
+    while(scanf("%d%d%d",&N,&M,&T) == 3&&N&&M&&T){
+    for(int i = 1;i <= N+M; ++i)
+      G[i].clear();
+    while(T--){
+        int u,v;
+        scanf("%d %d",&u,&v);
+        v += N;
+        G[u].Pb(v);
+        G[v].Pb(u);
+    }
+    int ans = 0;
+    memset(match,-1,sizeof(match));
+    for(int i = 1;i <= N; ++i){// 遍历左集合，每次寻找增广路
+        if(match[i] < 0){
+            memset(used,0,sizeof(used));
+            if(dfs(i)){
+                ans++;
+            }
+        }
+    }
+  
+    me(used);
+    for(int i = 1; i <= N; ++i){
+    	if(match[i] == -1)
+    	 Dfs(i);
+	}
+	vector<int> v;
+	for(int i = 1;i <= N; ++i)
+	   if(!used[i])
+	      v.Pb(i);
+	for(int i = N+1;i <= N+M; ++i)
+	  if(used[i])
+	     v.Pb(i);
+	printf("%d",v.size());
+	assert(ans == v.size());
+	for(int i = 0;i < v.size(); ++i)
+	  printf(" %c%d","cr"[v[i]<=N],v[i]<=N?v[i]:v[i]-N);
+     printf("\n");   
+	}
+   return 0;
+}
